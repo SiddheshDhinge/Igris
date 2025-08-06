@@ -3,28 +3,35 @@
 
 #include <vector>
 #include <iostream>
+#include <iomanip>
 
-
-struct Column
+class Column
 {
+    public:
     std::vector<int>* data;
-    int numRows;
 
-    Column(int);
-    Column(int, std::vector<int>*);
+    Column(std::vector<int>* input);
+    Column(int numRows);
     ~Column();
+
+    int numRows();
 };
 
-struct DataFrame
+class DataFrame
 {
-    Column** data;
-    int numColumns;
+    public:
+    const static int show_width = 10;
+
+    std::vector<Column*>* data;
+    std::vector<std::string>* headers;
     
-    DataFrame(int);
-    DataFrame(int, Column**);
+    DataFrame(int numColumns, int numRows, std::vector<std::string>* headers);
+    DataFrame(int numColumns, std::vector<Column*>* data, std::vector<std::string>* headers);
+    ~DataFrame();
 
     void show();
-    ~DataFrame();
+    int numColumns();
+    void addColumn(Column* newColumn, std::string header_name);
 };
 
 #endif

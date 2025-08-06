@@ -1,12 +1,10 @@
-#include <iostream>
-#include <vector>
-#include "../format/columnar.h"
+#include "sum.h"
 
 Column* sum(Column* a, Column* b) {
-    int n = a->data->size();
-    Column* res = new Column(n);
+    int numRows = a->numRows();
+    Column* res = new Column(numRows);
 
-    for(int i=0; i<n; i++) {
+    for(int i=0; i<numRows; i++) {
         (*res->data)[i] = (*a->data)[i] + (*b->data)[i];
     }
 

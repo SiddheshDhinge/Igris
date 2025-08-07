@@ -23,7 +23,7 @@ int main(int argc, char** args) {
 
     std::string path = config["path"]; // ".//data//data.csv";
 
-    DataFrame* df = read_csv(&path);
+    DataFrame* df = read_csv_buffered(&path);
     // df->show();
     
     Column* res = sum((*df->data)[0], (*df->data)[1]);

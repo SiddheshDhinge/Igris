@@ -4,13 +4,15 @@
 #include <vector>
 #include <iostream>
 #include <iomanip>
+#include "datatype.h"
+
 
 class Column
 {
     public:
-    std::vector<int>* data;
+    std::vector<datatype*>* data;
 
-    Column(std::vector<int>* input);
+    Column(std::vector<datatype*>* input);
     Column(int numRows);
     ~Column();
 

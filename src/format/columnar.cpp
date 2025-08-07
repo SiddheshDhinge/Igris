@@ -1,12 +1,12 @@
 #include "columnar.h"
 
 
-Column::Column(std::vector<int>* input) {
+Column::Column(std::vector<datatype*>* input) {
     data = input;
 }
 
 Column::Column(int numRows) {
-    this->data = new std::vector<int>(numRows);
+    this->data = new std::vector<datatype*>(numRows);
 }
 
 Column::~Column() {
@@ -56,8 +56,8 @@ void DataFrame::show() {
     for (int i = 0; i < numRows; i++) {
         for (int j = 0; j < numColumns; j++) {
             Column* c = (*data)[j];
-            int val = (*c->data)[i];
-            std::cout << std::setw(show_width) << val;
+            intw* val = (intw*)(*c->data)[i];
+            std::cout << std::setw(show_width) << val->get();
             if (j < numColumns - 1)
                 std::cout << " | ";
         }

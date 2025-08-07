@@ -7,5 +7,6 @@
 
 
 DataFrame* read_csv(std::string* path);
+DataFrame* read_csv_buffered(std::string* path);
 
 #endif

@@ -1,17 +1,24 @@
 #include "sum.h"
 
-Column* sum(Column* a, Column* b) {
-    int numRows = a->numRows();
-    Column* res = new Column(numRows);
+template<typename T1, typename T2>
+Column<T1>* sum(ColumnBase* a, ColumnBase* b) {
+  int numRows = a->numRows();
 
-    for(int i=0; i<numRows; i++) {
-        int valueA = ((intw*)(*a->data)[i])->get();
-        int valueB = ((intw*)(*b->data)[i])->get();
-        
-        int valueRes = valueA + valueB;
-        bool sign = (valueRes < 0) ? true : false;
-        (*res->data)[i] = new intw(valueRes, sign);
+    auto colA = static_cast<Column<T1>*>(a);
+    auto colB = static_cast<Column<T2>*>(b);
+
+    auto* res = new Column<T1>(numRows);
+
+    for (int i = 0; i < numRows; i++) {
+        // If T1/T2 are wrapper structs with .value:
+        T1 valueA = colA->data[i];
+        T2 valueB = colB->data[i];
+
+        // Assuming they can be added directly
+        res->data[i] = T1(valueA.value + valueB.value);
     }
 
     return res;
 }
+
+template Column<int32>* sum<int32, int32>(ColumnBase*, ColumnBase*);

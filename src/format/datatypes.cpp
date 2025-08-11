@@ -1,11 +1,15 @@
 #include "datatype.h"
 
-
-intw::intw(int value, bool sign){
+int_::int_(int value) {
     this->value = value;
-    this->sign = sign;
 }
 
-int intw::get() {
-    return value * (sign ? -1 : 1);
+string::string(std::string value)
+{
+    this->value = value;
+}
+
+string::string()
+{
+    this->value = "";
 }

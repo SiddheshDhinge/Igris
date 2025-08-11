@@ -19,31 +19,31 @@ int stringtoint(std::string* str) {
     return ans;
 }
 
-intw* bytetoint(char* bytes, int size, intw* old = nullptr) {
-    if(size == 0)
-        return new intw(0, false);
+// intw* bytetoint(char* bytes, int size, intw* old = nullptr) {
+//     if(size == 0)
+//         return new intw(0, false);
         
-    bool neg = false;
-    int cur = 0;
-    int ans = 0;
+//     bool neg = false;
+//     int cur = 0;
+//     int ans = 0;
 
-    if(old != nullptr) {
-        ans = old->value;
-        neg = old->sign;
-    }
-    else if(bytes[cur] == '-')
-    {
-        neg = true;
-        cur++;
-    }
+//     if(old != nullptr) {
+//         ans = old->value;
+//         neg = old->sign;
+//     }
+//     else if(bytes[cur] == '-')
+//     {
+//         neg = true;
+//         cur++;
+//     }
 
-    while(cur < size) {
-        ans = ans * 10 + (bytes[cur] - '0');
-        cur++;
-    }
+//     while(cur < size) {
+//         ans = ans * 10 + (bytes[cur] - '0');
+//         cur++;
+//     }
 
-    return new intw(ans, neg);
-}
+//     return new intw(ans, neg);
+// }
 
 std::vector<std::string>* parse_headers(std::string header_line) {
     int back = 0;
@@ -63,8 +63,69 @@ std::vector<std::string>* parse_headers(std::string header_line) {
     return headers;
 }
 
-// DataFrame* read_csv(std::string* path) {
-//     std::ifstream file(*path);
+DataFrame* read_csv(std::string* path, std::vector<DataTypeEnum> schema) {
+    std::ifstream file(*path);
+
+    if(!file)
+        return nullptr;
+    
+    std::string str;
+
+    //first line is field headers
+    std::getline(file, str);
+    std::vector<std::string>* headers = parse_headers(str);
+    
+    int numColumns = headers->size();
+    std::vector<Column<int32>*> data = std::vector<Column<int32>*>(numColumns, nullptr);
+    for(int i=0; i<numColumns; i++)
+        data[i] = new Column<int32>(0);
+
+    int curColumn = 0;
+    while(std::getline(file, str)) {
+        // parse data row by row
+        int last = 0;
+        for(int i=0; i < (int)str.size(); i++) {
+            if(str[i] == ',')
+            {
+                std::string value = str.substr(last, i - last);
+                int intvalue = stringtoint(&value);
+                auto x = data[curColumn]->data;
+                data[curColumn]->data.push_back(int32(intvalue));
+                last = i + 1;
+                curColumn++;
+            }
+        }
+        // parse from last to str size
+        std::string value = str.substr(last, str.size() - last);
+        int intvalue = stringtoint(&value);
+        data[curColumn]->data.push_back(int32(intvalue));
+
+        curColumn = 0;
+    }
+
+    std::vector<ColumnBase*> baseData;
+    for (auto c : data) {
+        baseData.push_back(c);
+    }
+
+    DataFrame* df = new DataFrame(baseData, *headers, schema);
+    return df;
+}
+
+// /* 
+// Copies from src to dst
+// assumes that dst has end - start allocated
+// */
+// void cp(char* src, char* dst, int start, int end) {
+//     int i = start;
+//     while(i < end) {
+//         dst[i - start] = src[i];
+//         i++;
+//     }
+// }
+
+// DataFrame* read_csv_buffered(std::string* path) {
+//     std::ifstream file(*path, std::ios::binary);
 
 //     if(!file)
 //         return nullptr;
@@ -80,90 +141,35 @@ std::vector<std::string>* parse_headers(std::string header_line) {
 //     for(int i=0; i<numColumns; i++)
 //         (*data)[i] = new Column(0);
 
+//     const static int BYTES_TO_READ = 512;
+//     char buffer[BYTES_TO_READ] = {};
 //     int curColumn = 0;
-//     while(std::getline(file, str)) {
-//         // parse data row by row
-//         int last = 0;
-//         for(int i=0; i < (int)str.size(); i++) {
-//             if(str[i] == ',')
-//             {
-//                 std::string value = str.substr(last, i - last);
-//                 int intvalue = stringtoint(&value);
-//                 (*data)[curColumn]->data->push_back(intvalue);
-//                 last = i + 1;
+//     intw* lastval = new intw(0, false);
+
+//     while(file.read(buffer, BYTES_TO_READ)) {
+//         // parse data byte by byte
+//         std::streamsize bytesRead = file.gcount();
+//         int curByte = 0;
+//         int lastSep = 0;
+//         while(curByte < bytesRead) {
+//             if(buffer[curByte] == ',' || buffer[curByte] == '\n') {
+//                 char* value = new char[curByte - lastSep];
+//                 cp(buffer, value, lastSep + 1, curByte);
+//                 intw* completeVal = bytetoint(value, curByte - lastSep, lastval);
+//                 (*data)[curColumn]->data->push_back(completeVal);
+//                 lastval->value = 0, lastval->sign = false;
+//                 lastSep = curByte;
 //                 curColumn++;
 //             }
+//             curByte++;
 //         }
-//         // parse from last to str size
-//         std::string value = str.substr(last, str.size() - last);
-//         int intvalue = stringtoint(&value);
-//         (*data)[curColumn]->data->push_back(intvalue);
 
+//         char* value = new char[curByte - lastSep];
+//         cp(buffer, value, lastSep + 1, curByte);
+//         lastval = bytetoint(value, curByte - lastSep, lastval);
 //         curColumn = 0;
 //     }
 
 //     DataFrame* df = new DataFrame(numColumns, data, headers);
 //     return df;
 // }
-
-/* 
-Copies from src to dst
-assumes that dst has end - start allocated
-*/
-void cp(char* src, char* dst, int start, int end) {
-    int i = start;
-    while(i < end) {
-        dst[i - start] = src[i];
-        i++;
-    }
-}
-
-DataFrame* read_csv_buffered(std::string* path) {
-    std::ifstream file(*path, std::ios::binary);
-
-    if(!file)
-        return nullptr;
-    
-    std::string str;
-
-    //first line is field headers
-    std::getline(file, str);
-    std::vector<std::string>* headers = parse_headers(str);
-    
-    int numColumns = headers->size();
-    std::vector<Column*>* data = new std::vector<Column*>(numColumns, nullptr);
-    for(int i=0; i<numColumns; i++)
-        (*data)[i] = new Column(0);
-
-    const static int BYTES_TO_READ = 512;
-    char buffer[BYTES_TO_READ] = {};
-    int curColumn = 0;
-    intw* lastval = new intw(0, false);
-
-    while(file.read(buffer, BYTES_TO_READ)) {
-        // parse data byte by byte
-        std::streamsize bytesRead = file.gcount();
-        int curByte = 0;
-        int lastSep = 0;
-        while(curByte < bytesRead) {
-            if(buffer[curByte] == ',' || buffer[curByte] == '\n') {
-                char* value = new char[curByte - lastSep];
-                cp(buffer, value, lastSep + 1, curByte);
-                intw* completeVal = bytetoint(value, curByte - lastSep, lastval);
-                (*data)[curColumn]->data->push_back(completeVal);
-                lastval->value = 0, lastval->sign = false;
-                lastSep = curByte;
-                curColumn++;
-            }
-            curByte++;
-        }
-
-        char* value = new char[curByte - lastSep];
-        cp(buffer, value, lastSep + 1, curByte);
-        lastval = bytetoint(value, curByte - lastSep, lastval);
-        curColumn = 0;
-    }
-
-    DataFrame* df = new DataFrame(numColumns, data, headers);
-    return df;
-}

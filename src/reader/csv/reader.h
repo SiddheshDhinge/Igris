@@ -6,7 +6,7 @@
 #include "../../format/columnar.h"
 
 
-DataFrame* read_csv(std::string* path);
-DataFrame* read_csv_buffered(std::string* path);
+DataFrame* read_csv(std::string* path, std::vector<DataTypeEnum> schema);
+// DataFrame* read_csv_buffered(std::string* path);
 
 #endif

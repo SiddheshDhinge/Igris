@@ -22,13 +22,14 @@ int main(int argc, char** args) {
     }
 
     std::string path = config["path"]; // ".//data//data.csv";
+    std::vector<DataTypeEnum> schema = {DataTypeEnum::INT_32, DataTypeEnum::INT_32, DataTypeEnum::INT_32, DataTypeEnum::INT_32, DataTypeEnum::INT_32};
 
-    DataFrame* df = read_csv_buffered(&path);
-    // df->show();
+    DataFrame* df = read_csv(&path, schema);
+    df->show();
     
-    Column* res = sum((*df->data)[0], (*df->data)[1]);
+    Column<int32>* res = sum<int32, int32>(df->data[0], df->data[1]);
 
-    df->addColumn(res, "col_sum");
+    df->addColumn(res, "col_sum", DataTypeEnum::INT_32);
     df->show();
 
     return 0;

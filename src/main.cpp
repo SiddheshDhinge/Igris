@@ -3,7 +3,7 @@
 #include <map>
 #include "functions/sum.h"
 #include "format/columnar.h"
-#include "reader/csv/reader.h"
+#include "datasource/csv/io.h"
 
 
 int main(int argc, char** args) {
@@ -21,16 +21,20 @@ int main(int argc, char** args) {
         std::cout<<key<<" -> "<<value<<std::endl;
     }
 
-    std::string path = config["path"]; // ".//data//data.csv";
+    std::string input_path = config["input"]; // ".//data//data.csv";
+    std::string output_path = config["output"]; // ".//op.csv";
     std::vector<DataTypeEnum> schema = {DataTypeEnum::INT_32, DataTypeEnum::INT_32, DataTypeEnum::INT_32, DataTypeEnum::INT_32, DataTypeEnum::INT_32};
 
-    DataFrame* df = read_csv(&path, schema);
-    df->show();
+    DataFrame* df = read_csv(&input_path, schema);
+    // df->show();
     
     Column<int32>* res = sum<int32, int32>(df->data[0], df->data[1]);
 
     df->addColumn(res, "col_sum", DataTypeEnum::INT_32);
     df->show();
 
+    std::cout<<"here"<<std::endl;
+    write_csv(df, &output_path);
+    
     return 0;
 }

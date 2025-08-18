@@ -11,6 +11,7 @@
 
 class ColumnBase {
 public:
+    virtual ~ColumnBase() = default;
     virtual int numRows() = 0;
 };
 
@@ -21,9 +22,9 @@ template<typename T> class Column: public ColumnBase
 
     Column(std::vector<T> input);
     Column(int numRows);
-    ~Column();
+    ~Column() override;
 
-    virtual int numRows() override;
+    int numRows() override;
 };
 
 class DataFrame

@@ -131,11 +131,6 @@ bool write_csv(DataFrame* df, std::string* path) {
         buffer[buffer_cur++] = (i < (df->numColumns() - 1)) ? ',' : '\n';
     }
 
-    for(int i=0; i<buffer_cur; i++)
-        std::cout<<i<<" : "<<buffer[i]<<std::endl;
-    std::cout<<std::endl;
-    return false;
-
     file.write(buffer, buffer_cur);
 
     for(int i=0; i<df->numRows(); i++)

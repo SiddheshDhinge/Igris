@@ -1,9 +1,10 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include "functions/sum.h"
+#include "functions/arithmatic.h"
+#include "functions/aggregate.h"
 #include "format/columnar.h"
-#include "reader/csv/reader.h"
+#include "datasource/csv/io.h"
 
 
 int main(int argc, char** args) {
@@ -21,15 +22,33 @@ int main(int argc, char** args) {
         std::cout<<key<<" -> "<<value<<std::endl;
     }
 
-    std::string path = config["path"]; // ".//data//data.csv";
+    std::string input_path = config["input"]; // ".//data//data.csv";
+    std::string output_path = config["output"]; // ".//op.csv";
+    std::vector<DataTypeEnum> schema = {DataTypeEnum::INT_32, DataTypeEnum::INT_32, DataTypeEnum::INT_32, DataTypeEnum::INT_32, DataTypeEnum::INT_32};
 
-    DataFrame* df = read_csv(&path);
+    DataFrame* df = read_csv(&input_path, schema);
     // df->show();
     
-    Column* res = sum((*df->data)[0], (*df->data)[1]);
+    df->addColumn(sum<int32, int32>(df->data[0], df->data[1]), "col_sum", DataTypeEnum::INT_32);
+    df->addColumn(substract<int32, int32>(df->data[0], df->data[1]), "col_sub", DataTypeEnum::INT_32);
+    df->addColumn(multiply<int32, int32>(df->data[0], df->data[1]), "col_mul", DataTypeEnum::INT_32);
+    df->addColumn(divide<int32, int32>(df->data[0], df->data[1]), "col_div", DataTypeEnum::INT_32);
+    
+    int32 res1 = count(df->data[0]);
+    int32 res2 = min<int32>(df->data[1]);
+    int32 res3 = max<int32>(df->data[2]);
+    int32 res4 = avg<int32>(df->data[3]);
+    int32 res5 = sum<int32>(df->data[4]);
+    std::cout<<"Cnt: "<<res1.value<<std::endl;
+    std::cout<<"Min: "<<res2.value<<std::endl;
+    std::cout<<"Max: "<<res3.value<<std::endl;
+    std::cout<<"Avg: "<<res4.value<<std::endl;
+    std::cout<<"Sum: "<<res5.value<<std::endl;
 
-    df->addColumn(res, "col_sum");
-    df->show();
+    // df->show();
+
+    // std::cout<<df->numRows()<<std::endl;
+    write_csv(df, &output_path);
 
     return 0;
 }

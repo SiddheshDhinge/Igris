@@ -4,17 +4,27 @@
 #include <vector>
 #include <iostream>
 #include <iomanip>
+#include <map>
+#include <variant>
+#include "datatype.h"
 
-class Column
+
+class ColumnBase {
+public:
+    virtual ~ColumnBase() = default;
+    virtual int numRows() = 0;
+};
+
+template<typename T> class Column: public ColumnBase
 {
     public:
-    std::vector<int>* data;
+    std::vector<T> data;
 
-    Column(std::vector<int>* input);
+    Column(std::vector<T> input);
     Column(int numRows);
-    ~Column();
+    ~Column() override;
 
-    int numRows();
+    int numRows() override;
 };
 
 class DataFrame
@@ -22,16 +32,18 @@ class DataFrame
     public:
     const static int show_width = 10;
 
-    std::vector<Column*>* data;
-    std::vector<std::string>* headers;
+    std::vector<ColumnBase*> data;
+    std::vector<std::string> headers;
+    std::vector<DataTypeEnum> schema;
     
-    DataFrame(int numColumns, int numRows, std::vector<std::string>* headers);
-    DataFrame(int numColumns, std::vector<Column*>* data, std::vector<std::string>* headers);
+    DataFrame(int numRows, int numColumns, std::vector<std::string> headers, std::vector<DataTypeEnum> schema);
+    DataFrame(std::vector<ColumnBase*> &input, std::vector<std::string> headers, std::vector<DataTypeEnum> schema);
     ~DataFrame();
 
     void show();
     int numColumns();
-    void addColumn(Column* newColumn, std::string header_name);
+    int numRows();
+    void addColumn(ColumnBase* newColumn, std::string header_name, DataTypeEnum column_schema);
 };
 
 #endif

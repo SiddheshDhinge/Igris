@@ -5,6 +5,7 @@
 #include "functions/aggregate.h"
 #include "format/columnar.h"
 #include "datasource/csv/io.h"
+#include "datasource/igris/io.h"
 
 
 int main(int argc, char** args) {
@@ -24,9 +25,10 @@ int main(int argc, char** args) {
 
     std::string input_path = config["input"]; // ".//data//data.csv";
     std::string output_path = config["output"]; // ".//op.csv";
+    
     std::vector<DataTypeEnum> schema = {DataTypeEnum::INT_32, DataTypeEnum::INT_32, DataTypeEnum::INT_32, DataTypeEnum::INT_32, DataTypeEnum::INT_32};
 
-    DataFrame* df = read_csv(&input_path, schema);
+    DataFrame* df = read_csv(input_path, schema);
     // df->show();
     
     df->addColumn(sum<int32, int32>(df->data[0], df->data[1]), "col_sum", DataTypeEnum::INT_32);
@@ -48,7 +50,10 @@ int main(int argc, char** args) {
     // df->show();
 
     // std::cout<<df->numRows()<<std::endl;
-    write_csv(df, &output_path);
+    // std::string op = "op.csv";
+    // write_csv(df, op);
+
+    write_igris(df, output_path);
 
     return 0;
 }

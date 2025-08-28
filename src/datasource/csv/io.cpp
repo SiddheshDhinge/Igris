@@ -63,8 +63,8 @@ std::vector<std::string>* parse_headers(std::string header_line) {
     return headers;
 }
 
-DataFrame* read_csv(std::string* path, std::vector<DataTypeEnum> schema) {
-    std::ifstream file(*path);
+DataFrame* read_csv(std::string &path, std::vector<DataTypeEnum> schema) {
+    std::ifstream file(path);
 
     if(!file)
         return nullptr;
@@ -116,8 +116,8 @@ DataFrame* read_csv(std::string* path, std::vector<DataTypeEnum> schema) {
     return df;
 }
 
-bool write_csv(DataFrame* df, std::string* path) {
-    std::ofstream file(*path, std::ios::binary);
+bool write_csv(DataFrame* df, std::string &path) {
+    std::ofstream file(path, std::ios::binary);
     if(!file)
         return false;
 
@@ -148,7 +148,7 @@ bool write_csv(DataFrame* df, std::string* path) {
 
         file.write(buffer, buffer_cur);
     }
-    std::cout<<"written "<<df->numRows()<<" rows to "<<*path<<std::endl;
+    std::cout<<"written "<<df->numRows()<<" rows to "<<path<<std::endl;
     
     return true;
 }

@@ -35,9 +35,22 @@ bool write_igris(DataFrame* df, std::string& path) {
     }
 
     const int K = 128;
+
+    // write total rows and total columns
+    int numRows = df->numRows();
+    int numColumns = df->numColumns();
+
+    file.write((const char*) &numRows, sizeof(int));
+    file.write((const char*) &numColumns, sizeof(int));
     
     // write headers
     for(int i=0; i<df->numColumns(); i++) {
+        std::string columnName = df->headers[i];
+        int len = columnName.size();
+        
+        file.write((const char*) &len, sizeof(int));
+        file.write(columnName.c_str(), len);
+
         DataTypeEnum headerType = DataTypeEnum::INT_8;
         if(DataTypeEnum::INT_8 == df->schema[i]) {
             headerType = DataTypeEnum::INT_8;

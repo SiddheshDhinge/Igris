@@ -6,6 +6,7 @@
 #include "format/columnar.h"
 #include "datasource/csv/io.h"
 #include "datasource/igris/io.h"
+#include "functions/filter/filter.h"
 
 
 int main(int argc, char** args) {
@@ -31,10 +32,10 @@ int main(int argc, char** args) {
     DataFrame* df = read_csv(input_path, schema);
     // df->show();
     
-    df->addColumn(sum<int32, int32>(df->data[0], df->data[1]), "col_sum", DataTypeEnum::INT_32);
-    df->addColumn(substract<int32, int32>(df->data[0], df->data[1]), "col_sub", DataTypeEnum::INT_32);
-    df->addColumn(multiply<int32, int32>(df->data[0], df->data[1]), "col_mul", DataTypeEnum::INT_32);
-    df->addColumn(divide<int32, int32>(df->data[0], df->data[1]), "col_div", DataTypeEnum::INT_32);
+    df->addColumn(Sum<int32, int32>()(df->data[0], df->data[1]), "col_sum", DataTypeEnum::INT_32);
+    df->addColumn(Substract<int32, int32>()(df->data[0], df->data[1]), "col_sub", DataTypeEnum::INT_32);
+    df->addColumn(Multiply<int32, int32>()(df->data[0], df->data[1]), "col_mul", DataTypeEnum::INT_32);
+    df->addColumn(Divide<int32, int32>()(df->data[0], df->data[1]), "col_div", DataTypeEnum::INT_32);
     
     int32 res1 = count(df->data[0]);
     int32 res2 = min<int32>(df->data[1]);
@@ -66,6 +67,10 @@ int main(int argc, char** args) {
     std::cout<<"Max: "<<res_3.value<<std::endl;
     std::cout<<"Avg: "<<res_4.value<<std::endl;
     std::cout<<"Sum: "<<res_5.value<<std::endl;
+
+    std::string filterString = "(a + b) > c AND (c IN ('10',20,30)) AND d = 'fit' OR e = 10";
+    filter(df, filterString);
+    
 
     return 0;
 }
